@@ -13,4 +13,4 @@ Become part of our dynamic community where you can share insights, get support, 
 Ready to migrate your XML files into Excel with ease? Download XML2Excel today and revolutionize your data management approach! 🚀📥
 
 📬 **Contact Us**:
-**We also help people migrate from one tool to another involving XML files? Feel free to reach out to us at [pranay_bhoyar019@gmail.com]. We’re here to help! 📧💼**
+**We also help people migrate from one tool to another involving XML files? Feel free to reach out to us at pranay_bhoyar019@gmail.com. We’re here to help! 📧💼**

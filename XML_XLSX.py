@@ -1,16 +1,14 @@
 import xml.etree.ElementTree as ET
 import pandas as pd
 
-
 # Recursive function to calculate the maximum depth of the XML tree
 def find_max_depth(element, level=0):
     if not list(element):
         return level
     return max(find_max_depth(child, level + 1) for child in element)
 
-
 # Load and parse the XML file
-file = 'hr_data.xml'  # Replace with your XML file
+file = ''  # Replace with your XML file
 tree = ET.parse(file)
 root = tree.getroot()
 
@@ -32,7 +30,6 @@ while i1 < max_depth:
     list_elements.append(temp_list)
     i1 += 1
 
-
 # Function to merge dictionaries by attribute keys
 def merge_dicts(dict_list):
     merged_dicts = []
@@ -51,37 +48,30 @@ def merge_dicts(dict_list):
             merged_dicts.append({key: value for key, value in current_dict.items()})
     return merged_dicts
 
-
 # Create a list of dictionaries from the attributes of elements at all depth levels
 list_dict = []
 for level in whole_list:
     level_dicts = [elem.attrib for elem in level if elem.attrib]
     list_dict = merge_dicts(list_dict + level_dicts)
 
-# Convert dictionaries to DataFrames and join them on a common key
-# For this example, let's assume there's a common key like 'id' or 'name'
-merged_df = None
-common_key = 'id'  # Specify the column name for joining (modify as per your data)
+# Convert each dictionary into a DataFrame and write all DataFrames to a single Excel sheet
+with pd.ExcelWriter('output_hr_data.xlsx', engine='openpyxl') as writer:
+    start_row = 0  # To track where to start writing each DataFrame
+    sheet_name = 'MergedData'  # Single sheet name
 
-for idx, dic in enumerate(list_dict):
-    # Convert dictionary to DataFrame
-    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in dic.items()]))
+    for idx, dic in enumerate(list_dict):
+        # Convert dictionary to DataFrame
+        df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in dic.items()]))
 
-    # Join DataFrames on the common key
-    if common_key in df.columns:
-        if merged_df is None:
-            merged_df = df  # Initialize with the first DataFrame
-        else:
-            merged_df = pd.merge(merged_df, df, on=common_key, how='outer')  # Outer join to combine all keys
+        # Write DataFrame to Excel in the same sheet with a gap of 5 rows
+        df.to_excel(writer, sheet_name=sheet_name, startrow=start_row, index=False)
 
-# Write the merged DataFrame to Excel
-with pd.ExcelWriter(file+"xlsx", engine='openpyxl') as writer:
-    # Save the final merged DataFrame to one sheet
-    merged_df.to_excel(writer, sheet_name='MergedData', index=False)
+        # Leave a gap of 5 rows between each DataFrame
+        start_row += len(df) + 6
 
     # Formatting for column width
     workbook = writer.book
-    worksheet = writer.sheets['MergedData']
+    worksheet = writer.sheets[sheet_name]
     for column in worksheet.columns:
         max_length = 0
         column = [cell for cell in column]
@@ -94,4 +84,4 @@ with pd.ExcelWriter(file+"xlsx", engine='openpyxl') as writer:
         adjusted_width = (max_length + 2)
         worksheet.column_dimensions[column[0].column_letter].width = adjusted_width
 
-print("Merged data has been saved to 'output_hr_data_merged.xlsx'")
+print("Data has been saved.")
